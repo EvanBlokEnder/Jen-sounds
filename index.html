@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jenn Sounds & Videos</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #fbc2eb 100%);
+            background-attachment: fixed;
+        }
+        h1 {
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            margin: 40px 0 20px;
+        }
+        .soundboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .sound-btn, .video-btn, .game-tab {
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            border-radius: 12px;
+            padding: 20px 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            backdrop-filter: blur(5px);
+        }
+        .sound-btn {
+            color: #d32f2f;
+        }
+        .video-btn {
+            color: #1976d2;
+        }
+        .game-tab {
+            color: #388e3c;
+        }
+        .sound-btn:hover, .video-btn:hover, .game-tab:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .sound-btn:active, .video-btn:active, .game-tab:active {
+            transform: translateY(1px);
+        }
+        footer {
+            margin-top: 40px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 1000px;
+            margin: 20px auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            border: none;
+            background: rgba(255,255,255,0.7);
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tab-button.active {
+            background: rgba(255,255,255,0.9);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Video Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            width: 80%;
+            max-width: 800px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+        }
+        .video-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .video-controls {
+            display: flex;
+            background: #333;
+            padding: 10px;
+            align-items: center;
+        }
+        .control-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+        .progress-container {
+            flex-grow: 1;
+            height: 10px;
+            background: #555;
+            margin: 0 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #f44336;
+            border-radius: 5px;
+            width: 0%;
+        }
+        .time-display {
+            color: white;
+            font-family: monospace;
+            margin: 0 10px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        /* Flappy Box Game Styles */
+        #game-container {
+            position: relative;
+            width: 400px;
+            height: 600px;
+            margin: 0 auto;
+            background-color: #87CEEB;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        #game-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        #start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #score-display {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        #high-score-display {
+            position: absolute;
+            top: 50px;
+            left: 20px;
+            color: gold;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .game-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .game-btn:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Jenn Sounds & Videos</h1>
+        
+        <div class="tabs">
+            <button class="tab-button active" data-tab="sounds-tab">Sounds</button>
+            <button class="tab-button" data-tab="videos-tab">Videos</button>
+            <button class="tab-button" data-tab="game-tab">Flappy Box</button>
+        </div>
+        
+        <div id="sounds-tab" class="tab-content active">
+            <h2>Sound Clips</h2>
+            <div class="soundboard" id="soundboard">
+                <!-- Sound buttons will be added here by JavaScript -->
+            </div>
+        </div>
+        
+        <div id="videos-tab" class="tab-content">
+            <h2>Video Clips</h2>
+            <div class="soundboard" id="videoboard">
+                <!-- Video buttons will be added here by JavaScript -->
+            </div>
+        </div>
+        
+        <div id="game-tab" class="tab-content">
+            <h2>Flappy Box</h2>
+            <div id="game-container">
+                <canvas id="game-canvas" width="400" height="600"></canvas>
+                <div id="score-display">Score: 0</div>
+                <div id="high-score-display">High Score: 0</div>
+                <div id="start-screen">
+                    <h2>Flappy Box</h2>
+                    <p>Click or press space to jump</p>
+                    <button class="game-btn" id="start-btn">Start Game</button>
+                </div>
+                <div id="game-over">
+                    <h2>Game Over!</h2>
+                    <p id="final-score">Score: 0</p>
+                    <p id="final-high-score">High Score: 0</p>
+                    <button class="game-btn" id="restart-btn">Play Again</button>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            Click any button to play! Add more by uploading MP3/MP4 files and updating the lists.
+        </footer>
+    </div>
+
+    <!-- Video Modal -->
+    <div class="modal" id="videoModal">
+        <button class="close-btn" id="closeModal">×</button>
+        <div class="modal-content">
+            <div class="video-container">
+                <video class="video-player" id="videoPlayer" controls>
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <div class="video-controls">
+                <button class="control-btn" id="playPauseBtn">▶️</button>
+                <button class="control-btn" id="muteBtn">🔊</button>
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab functionality
+        const tabButtons = document.querySelectorAll('.tab-button');
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                
+                // Hide all tabs
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Deactivate all buttons
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Show selected tab
+                document.getElementById(tabId).classList.add('active');
+                button.classList.add('active');
+            });
+        });
+
+        // Array of sound files
+        const sounds = [
+            { name: "Sound 1", file: "sound1.mp3" },
+            { name: "Sound 2", file: "sound2.mp3" },
+            { name: "Sound 3", file: "sound3.mp3" },
+            // Add more sounds here
+        ];
+
+        // Array of video files
+        const videos = [
+            { name: "Video 1", file: "video1.mp4" },
+            { name: "Video 2", file: "video2.mp4" },
+            { name: "Video 3", file: "video3.mp4" },
+            // Add more videos here
+        ];
+
+        // Create sound buttons
+        const soundboard = document.getElementById('soundboard');
+        sounds.forEach(sound => {
+            const button = document.createElement('button');
+            button.className = 'sound-btn';
+            button.textContent = sound.name;
+            button.onclick = () => playSound(sound.file);
+            soundboard.appendChild(button);
+        });
+
+        // Create video buttons
+        const videoboard = document.getElementById('videoboard');
+        videos.forEach(video => {
+            const button = document.createElement('button');
+            button.className = 'video-btn';
+            button.textContent = video.name;
+            button.onclick = () => openVideo(video.file);
+            videoboard.appendChild(button);
+        });
+
+        // Function to play sounds
+        function playSound(soundFile) {
+            const audio = new Audio(soundFile);
+            audio.play().catch(e => console.log("Audio play failed:", e));
+        }
+
+        // Video player functionality
+        const videoModal = document.getElementById('videoModal');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const closeModal = document.getElementById('closeModal');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const muteBtn = document.getElementById('muteBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+        const timeDisplay = document.getElementById('timeDisplay');
+
+        function openVideo(videoFile) {
+            videoPlayer.src = videoFile;
+            videoModal.style.display = 'flex';
+            videoPlayer.play();
+            updatePlayPauseIcon();
+        }
+
+        closeModal.addEventListener('click', () => {
+            videoPlayer.pause();
+            videoModal.style.display = 'none';
+        });
+
+        videoPlayer.addEventListener('play', updatePlayPauseIcon);
+        videoPlayer.addEventListener('pause', updatePlayPauseIcon);
+        videoPlayer.addEventListener('timeupdate', updateProgress);
+        videoPlayer.addEventListener('loadedmetadata', updateTimeDisplay);
+
+        playPauseBtn.addEventListener('click', () => {
+            if (videoPlayer.paused) {
+                videoPlayer.play();
+            } else {
+                videoPlayer.pause();
+            }
+        });
+
+        muteBtn.addEventListener('click', () => {
+            videoPlayer.muted = !videoPlayer.muted;
+            muteBtn.textContent = videoPlayer.muted ? "🔇" : "🔊";
+        });
+
+        progressContainer.addEventListener('click', (e) => {
+            const pos = (e.pageX - progressContainer.offsetLeft) / progressContainer.offsetWidth;
+            videoPlayer.currentTime = pos * videoPlayer.duration;
+        });
+
+        function updatePlayPauseIcon() {
+            playPauseBtn.textContent = videoPlayer.paused ? "▶️" : "⏸️";
+        }
+
+        function updateProgress() {
+            const percent = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+            progressBar.style.width = `${percent}%`;
+            updateTimeDisplay();
+        }
+
+        function updateTimeDisplay() {
+            const currentTime = formatTime(videoPlayer.currentTime);
+            const duration = formatTime(videoPlayer.duration);
+            timeDisplay.textContent = `${currentTime} / ${duration}`;
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        // Flappy Box Game - Improved Version
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const startScreen = document.getElementById('start-screen');
+        const gameOverScreen = document.getElementById('game-over');
+        const scoreDisplay = document.getElementById('score-display');
+        const highScoreDisplay = document.getElementById('high-score-display');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const finalHighScoreDisplay = document.getElementById('final-high-score');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Game assets
+        const backgroundImg = new Image();
+        backgroundImg.src = 'https://i.imgur.com/T2yQ4Cx.png';
+        
+        const pipeTopImg = new Image();
+        pipeTopImg.src = 'https://i.imgur.com/1VxZlLp.png';
+        
+        const pipeBottomImg = new Image();
+        pipeBottomImg.src = 'https://i.imgur.com/1VxZlLp.png';
+        
+        const birdImg = new Image();
+        birdImg.src = 'https://i.imgur.com/Bzpk4M9.png';
+
+        // Game variables
+        let bird = {
+            x: 100,
+            y: 300,
+            width: 40,
+            height: 40,
+            velocity: 0,
+            gravity: 0.5,
+            jump: -8, // Reduced jump height
+            rotation: 0
+        };
+
+        let pipes = [];
+        let score = 0;
+        let highScore = getHighScore();
+        let gameRunning = false;
+        let animationFrameId;
+        let gameSpeed = 2;
+        let pipeGap = 150;
+        let pipeFrequency = 1500;
+        let lastPipeTime = 0;
+        let lastFrameTime = 0;
+        let accumulatedTime = 0;
+
+        // Initialize game
+        function initGame() {
+            bird.y = 300;
+            bird.velocity = 0;
+            bird.rotation = 0;
+            pipes = [];
+            score = 0;
+            updateScore();
+            highScore = getHighScore();
+            updateHighScore();
+            gameRunning = true;
+            lastPipeTime = 0;
+            lastFrameTime = performance.now();
+            accumulatedTime = 0;
+            startScreen.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            animate();
+        }
+
+        // Game loop with fixed timestep
+        function animate(currentTime = 0) {
+            if (!gameRunning) return;
+            
+            animationFrameId = requestAnimationFrame(animate);
+            
+            // Calculate delta time for smooth animation
+            const deltaTime = currentTime - lastFrameTime;
+            lastFrameTime = currentTime;
+            accumulatedTime += deltaTime;
+            
+            // Fixed timestep update
+            const fixedTimeStep = 16; // ~60fps
+            while (accumulatedTime >= fixedTimeStep) {
+                updateGame(fixedTimeStep);
+                accumulatedTime -= fixedTimeStep;
+            }
+            
+            renderGame();
+        }
+
+        function updateGame(deltaTime) {
+            // Update bird physics
+            bird.velocity += bird.gravity;
+            bird.y += bird.velocity;
+            
+            // Rotate bird based on velocity
+            bird.rotation = Math.min(Math.max(bird.velocity * 5, -30), 30);
+            
+            // Check if bird hits the ground or ceiling
+            if (bird.y + bird.height > canvas.height || bird.y < 0) {
+                gameOver();
+                return;
+            }
+            
+            // Generate new pipes
+            const currentTime = Date.now();
+            if (currentTime - lastPipeTime > pipeFrequency) {
+                createPipe();
+                lastPipeTime = currentTime;
+            }
+            
+            // Update pipes
+            for (let i = 0; i < pipes.length; i++) {
+                pipes[i].x -= gameSpeed;
+                
+                // Improved collision detection with tighter hitboxes
+                const birdRight = bird.x + bird.width - 5; // Slightly smaller hitbox
+                const birdLeft = bird.x + 5;
+                const birdBottom = bird.y + bird.height - 5;
+                const birdTop = bird.y + 5;
+                
+                const pipeRight = pipes[i].x + pipes[i].width;
+                const pipeLeft = pipes[i].x;
+                
+                // Top pipe collision
+                if (birdRight > pipeLeft && 
+                    birdLeft < pipeRight && 
+                    birdTop < pipes[i].topHeight) {
+                    gameOver();
+                    return;
+                }
+                
+                // Bottom pipe collision
+                if (birdRight > pipeLeft && 
+                    birdLeft < pipeRight && 
+                    birdBottom > pipes[i].bottomY) {
+                    gameOver();
+                    return;
+                }
+                
+                // Check if bird passed the pipe
+                if (pipes[i].x + pipes[i].width < bird.x && !pipes[i].passed) {
+                    pipes[i].passed = true;
+                    score++;
+                    updateScore();
+                }
+                
+                // Remove pipes that are off screen
+                if (pipes[i].x + pipes[i].width < 0) {
+                    pipes.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        function renderGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background
+            ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+            
+            // Draw pipes
+            for (let pipe of pipes) {
+                // Draw top pipe
+                ctx.drawImage(pipeTopImg, pipe.x, pipe.topY, pipe.width, pipe.topHeight);
+                
+                // Draw bottom pipe
+                ctx.drawImage(pipeBottomImg, pipe.x, pipe.bottomY, pipe.width, pipe.bottomHeight);
+            }
+            
+            // Draw bird with rotation
+            ctx.save();
+            ctx.translate(bird.x + bird.width/2, bird.y + bird.height/2);
+            ctx.rotate(bird.rotation * Math.PI / 180);
+            ctx.drawImage(birdImg, -bird.width/2, -bird.height/2, bird.width, bird.height);
+            ctx.restore();
+        }
+
+        function createPipe() {
+            const minHeight = 50;
+            const maxHeight = canvas.height - pipeGap - minHeight;
+            const topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+            
+            const pipe = {
+                x: canvas.width,
+                width: 80,
+                topHeight: topHeight,
+                topY: 0,
+                bottomY: topHeight + pipeGap,
+                bottomHeight: canvas.height - (topHeight + pipeGap),
+                passed: false
+            };
+            
+            pipes.push(pipe);
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            cancelAnimationFrame(animationFrameId);
+            gameOverScreen.style.display = 'block';
+            finalScoreDisplay.textContent = `Score: ${score}`;
+            finalHighScoreDisplay.textContent = `High Score: ${highScore}`;
+            
+            if (score > highScore) {
+                setHighScore(score);
+            }
+        }
+
+        function jump() {
+            if (!gameRunning) {
+                if (startScreen.style.display === 'none') {
+                    initGame();
+                }
+                return;
+            }
+            
+            bird.velocity = bird.jump; // Use the reduced jump value
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = `Score: ${score}`;
+        }
+
+        function updateHighScore() {
+            highScoreDisplay.textContent = `High Score: ${highScore}`;
+        }
+
+        function getHighScore() {
+            return parseInt(localStorage.getItem('flappyBoxHighScore')) || 0;
+        }
+
+        function setHighScore(newScore) {
+            localStorage.setItem('flappyBoxHighScore', newScore.toString());
+            highScore = newScore;
+            updateHighScore();
+        }
+
+        // Event listeners with immediate response
+        startBtn.addEventListener('click', initGame);
+        restartBtn.addEventListener('click', initGame);
+        
+        // Use pointer events for better responsiveness
+        canvas.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            jump();
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                jump();
+            }
+        });
+
+        // Preload images
+        window.onload = function() {
+            highScore = getHighScore();
+            updateHighScore();
+        };
+    </script>
+</body>
+</html>
